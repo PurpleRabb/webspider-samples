@@ -5,6 +5,8 @@ import json
 from multiprocessing import Pool
 import os
 
+"""爬取猫眼Top100电影信息"""
+
 myheader = '''
 Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3
 Accept-Encoding: gzip, deflate, br
