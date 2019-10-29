@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import json
+import os
 import re
 import time
 import urllib
@@ -11,6 +12,8 @@ from bs4 import BeautifulSoup
 from requests import RequestException
 
 """爬取头条的图片搜索，注意header的填写，否则返回的数据不正确"""
+
+keyword = "风景"
 
 headers = {
     'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3',
@@ -105,7 +108,7 @@ def download_image(item):
             for picname in list(set(re.findall(md5pattern, line))):  # set去重
                 response = requests.get(origin_url + picname, headers=download_header)
                 print(origin_url + picname)
-                with open("./pics/" + picname + ".jpg", "wb") as f:
+                with open("./"+keyword+"/" + picname + ".jpg", "wb") as f:
                     f.write(response.content)
                     f.close()
         else:
@@ -117,8 +120,9 @@ def download_image(item):
 
 def main():
     print("main")
+    os.mkdir(keyword)
     for i in range(100):
-        result_json = get_search_result("街拍", i * 20)  # offset(0,20,40...)
+        result_json = get_search_result(keyword, i * 20)  # offset(0,20,40...)
         for item in get_pics(result_json):
             download_image(item)
 
