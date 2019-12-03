@@ -5,6 +5,7 @@ from PIL import Image
 import sys
 import os
 import shutil
+import numpy as np
 
 """通过直方图计算两张图图片的相似度，适用于测试截图的比对"""
 g_pic_dir = "F:\screenshots\screen"
@@ -32,6 +33,36 @@ def hist_similar(lh, rh):
     # return sum(1 - (0 if l == r else float(abs(l - r)) / max(l, r)) for l, r in zip(lh, rh)) / len(lh)
 
 
+# I = Image.open(g_ok_pic).convert('L')
+# I_array_ok = np.array(I)
+def mtx_similar3(arr1: np.ndarray, arr2: np.ndarray) -> float:
+    # 判断图片矩阵的相似度，将图片先转换为灰度图，然后转换位numpy矩阵传入,速度较直方图慢
+    '''
+    From CS231n: There are many ways to decide whether
+    two matrices are similar; one of the simplest is the Frobenius norm. In case
+    you haven't seen it before, the Frobenius norm of two matrices is the square
+    root of the squared sum of differences of all elements; in other words, reshape
+    the matrices into vectors and compute the Euclidean distance between them.
+    difference = np.linalg.norm(dists - dists_one, ord='fro')
+    :param arr1:矩阵1
+    :param arr2:矩阵2
+    :return:相似度（0~1之间）
+    '''
+    if arr1.shape != arr2.shape:
+        minx = min(arr1.shape[0], arr2.shape[0])
+        miny = min(arr1.shape[1], arr2.shape[1])
+        differ = arr1[:minx, :miny] - arr2[:minx, :miny]
+    else:
+        differ = arr1 - arr2
+    dist = np.linalg.norm(differ, ord='fro')
+    len1 = np.linalg.norm(arr1)
+    len2 = np.linalg.norm(arr2)  # 普通模长
+    denom = (len1 + len2) / 2
+    similar = 1 - (dist / denom)
+    print(similar)
+    return similar
+
+
 def task(lists, _id):
     print("start thread id = %d" % _id)
     for file in lists:
@@ -45,6 +76,9 @@ def task(lists, _id):
             continue
         if hist_similar(g_base_his, img.histogram()) < THRESHOLD:
             result.append(filename)
+        # i_array = np.array(img.convert('L'))
+        # if mtx_similar3(I_array_ok, i_array) < 0.98:
+        #    result.append(filename)
 
 
 if __name__ == "__main__":
